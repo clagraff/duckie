@@ -12,7 +12,7 @@ var CFG_FILE_NAME string = ".ducky"
 type Config struct {
 	Path   string `json:"path"`
 	Dir    string `json:"dir"`
-	AddTrx bool   `json:"add_transactions"`
+	AddTxn bool   `json:"add_transactions"`
 }
 
 func ReadCfg() (Config, error) {

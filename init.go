@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/clagraff/argparse"
 )
@@ -90,10 +91,20 @@ func runInit(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 	cfg := Config{}
 	cfg.Path = path.(string)
 	cfg.Dir = dir.(string)
-	cfg.AddTrx = true
+
+	txnStr := ns.Get("txn")
+	if strings.ToLower(txnStr.(string)) == "true" {
+		cfg.AddTxn = true
+	} else {
+		cfg.AddTxn = false
+	}
 
 	err = WriteCfg(cfg)
 	if err != nil {
+		errorOut(err.Error())
+	}
+
+	if err = WriteUserVersion(0, cfg); err != nil {
 		errorOut(err.Error())
 	}
 }
@@ -102,9 +113,10 @@ func AddInitParser(mainParser *argparse.Parser) {
 	p := argparse.NewParser("ducky - init")
 	p.AddHelp()
 
-	dbName := argparse.NewArg("p Path", "path", "Path to sqlite database").Default("db.sqlite3").NotRequired()
+	dbName := argparse.NewArg("p Path", "path", "Path to sqlite database").Default("database.sqlite3").NotRequired()
 	sqlDir := argparse.NewArg("d dir", "dir", "Path to migration directory").Default("sql").NotRequired()
-	p.AddOptions(dbName, sqlDir)
+	addTxn := argparse.NewOption("t txn", "txn", "Do not auto-add transactions when creating migrations").Default("false")
+	p.AddOptions(addTxn, dbName, sqlDir)
 
 	mainParser.AddParser("init", p, runInit)
 }

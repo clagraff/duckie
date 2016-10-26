@@ -29,6 +29,9 @@ func main() {
 	}
 
 	AddInitParser(p)
+	AddCreateParser(p)
+	AddUpParser(p)
+	AddDownParser(p)
 
 	// Parse all available program arguments (except for the program path).
 	if _, _, err := p.Parse(os.Args[1:]...); err != nil {
