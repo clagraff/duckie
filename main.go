@@ -18,8 +18,21 @@ func checkSqlite() error {
 	return nil
 }
 
+func runMain(p *argparse.Parser, ns *argparse.Namespace, args []string, err error) {
+	if err != nil {
+		switch err.(type) {
+		case argparse.ShowHelpErr, argparse.ShowVersionErr:
+			return
+		default:
+			fmt.Println(err, "\n")
+			p.ShowHelp()
+		}
+	}
+
+}
+
 func main() {
-	p := argparse.NewParser("ducky").Version("0.0.0")
+	p := argparse.NewParser("ducky", runMain).Version("0.0.0")
 	p.AddHelp().AddVersion() // Enable help and version flags
 
 	if checkSqlite() != nil {
@@ -32,15 +45,11 @@ func main() {
 	AddCreateParser(p)
 	AddUpParser(p)
 	AddDownParser(p)
+	AddStatusParser(p)
 
-	// Parse all available program arguments (except for the program path).
-	if _, _, err := p.Parse(os.Args[1:]...); err != nil {
-		switch err.(type) {
-		case argparse.ShowHelpErr, argparse.ShowVersionErr:
-			return
-		default:
-			fmt.Println(err, "\n")
-			p.ShowHelp()
-		}
+	if len(os.Args) <= 0 {
+		p.ShowHelp()
+	} else {
+		p.Parse(os.Args[1:]...)
 	}
 }

@@ -59,7 +59,8 @@ func runUp(p *argparse.Parser, ns *argparse.Namespace, args []string, err error)
 			if fID > version {
 				counter[fID]++
 				if counter[fID] > 1 {
-					fmt.Println("Multiple migrations for same version:", strconv.Itoa(fID))
+					errorOut(fmt.Sprintf("Multiple migrations share version number: %d, file: %s", fID, f))
+					return
 				}
 				filePaths = append(filePaths, f)
 			}
@@ -69,6 +70,8 @@ func runUp(p *argparse.Parser, ns *argparse.Namespace, args []string, err error)
 	fmt.Printf("Current version: %d, Target version: %d, Num of Migrations: %d\n", version, version+len(filePaths), len(filePaths))
 	if len(filePaths) == 0 {
 		fmt.Println("No migrations to run")
+	} else {
+		fmt.Printf("\n")
 	}
 	for _, path := range filePaths {
 		contents, err := ioutil.ReadFile(path)
@@ -100,11 +103,8 @@ func runUp(p *argparse.Parser, ns *argparse.Namespace, args []string, err error)
 }
 
 func AddUpParser(mainParser *argparse.Parser) {
-	p := argparse.NewParser("ducky - up")
+	p := argparse.NewParser("ducky - up", runUp)
 	p.AddHelp()
 
-	//name := argparse.NewArg("i id", "id", "Specific version ID to run/re-run").Default("0")
-	//p.AddOption(name)
-
-	mainParser.AddParser("up", p, runUp)
+	mainParser.AddParser("up", p)
 }

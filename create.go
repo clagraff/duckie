@@ -48,11 +48,11 @@ func runCreate(p *argparse.Parser, ns *argparse.Namespace, args []string, err er
 }
 
 func AddCreateParser(mainParser *argparse.Parser) {
-	p := argparse.NewParser("ducky - create")
+	p := argparse.NewParser("ducky - create", runCreate)
 	p.AddHelp()
 
 	name := argparse.NewArg("n name", "name", "Name of migration").Required()
 	p.AddOption(name)
 
-	mainParser.AddParser("create", p, runCreate)
+	mainParser.AddParser("create", p)
 }

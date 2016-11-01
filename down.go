@@ -64,7 +64,7 @@ func runDown(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 	for _, f := range files {
 		splitted := strings.Split(filepath.Base(f), "_")
 		if fID, err := strconv.Atoi(splitted[0]); err == nil {
-			if fID < version {
+			if fID <= version {
 				counter[fID]++
 				if counter[fID] > 1 {
 					fmt.Println("Multiple migrations for same version:", strconv.Itoa(fID))
@@ -108,11 +108,11 @@ func runDown(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 }
 
 func AddDownParser(mainParser *argparse.Parser) {
-	p := argparse.NewParser("ducky - down")
+	p := argparse.NewParser("ducky - down", runDown)
 	p.AddHelp()
 
 	all := argparse.NewFlag("a all", "all", "Perform all possible downgrades from the current database version")
 	p.AddOption(all)
 
-	mainParser.AddParser("down", p, runDown)
+	mainParser.AddParser("down", p)
 }

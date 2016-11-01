@@ -59,11 +59,13 @@ func runInit(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 			errorOut("p, path: " + err.Error())
 			return
 		}
+		fmt.Printf("Created database: %s\n", path.(string))
 	} else {
 		if stat.IsDir() == true {
 			errorOut("p, path: a directory is not a database")
 			return
 		}
+		fmt.Printf("Using existing database: %s\n", path.(string))
 	}
 
 	dir := ns.Get("dir")
@@ -86,6 +88,13 @@ func runInit(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 
 	if dirExists == false {
 		err = os.MkdirAll(dir.(string), 0777)
+		if err != nil {
+			errorOut(err.Error())
+			return
+		}
+		fmt.Printf("Created migration directory: %s\n", dir.(string))
+	} else {
+		fmt.Printf("Using migration directory: %s\n", dir.(string))
 	}
 
 	cfg := Config{}
@@ -110,7 +119,7 @@ func runInit(p *argparse.Parser, ns *argparse.Namespace, args []string, err erro
 }
 
 func AddInitParser(mainParser *argparse.Parser) {
-	p := argparse.NewParser("ducky - init")
+	p := argparse.NewParser("ducky - init", runInit)
 	p.AddHelp()
 
 	dbName := argparse.NewArg("p Path", "path", "Path to sqlite database").Default("database.sqlite3").NotRequired()
@@ -118,5 +127,5 @@ func AddInitParser(mainParser *argparse.Parser) {
 	addTxn := argparse.NewOption("t txn", "txn", "Do not auto-add transactions when creating migrations").Default("false")
 	p.AddOptions(addTxn, dbName, sqlDir)
 
-	mainParser.AddParser("init", p, runInit)
+	mainParser.AddParser("init", p)
 }
